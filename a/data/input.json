@@ -1,0 +1,64 @@
+{
+  "topic": "AVL tree right rotation",
+  "script": [
+    {
+      "id": "intro",
+      "narration": "AVL trees rebalance after updates.",
+      "subtitle": "AVL trees rebalance after updates.",
+      "actions": []
+    },
+    {
+      "id": "root",
+      "narration": "Start with 30.",
+      "subtitle": "30 is the root.",
+      "actions": [
+        {"type": "create_node", "target": "node_30", "value": "30", "position": "root", "duration": 0.7}
+      ]
+    },
+    {
+      "id": "insert-20",
+      "narration": "Insert 20 to its left.",
+      "subtitle": "Insert 20 to the left.",
+      "actions": [
+        {"type": "create_node", "target": "node_20", "value": "20", "position": "left", "duration": 0.65},
+        {"type": "connect", "target": "edge_30_20", "source": "node_30", "destination": "node_20", "duration": 0.4}
+      ]
+    },
+    {
+      "id": "insert-10",
+      "narration": "Place 10 below 20; this left-left chain unbalances 30.",
+      "subtitle": "The left-left chain unbalances 30.",
+      "actions": [
+        {"type": "create_node", "target": "node_10", "value": "10", "position": "left_left", "duration": 0.6},
+        {"type": "connect", "target": "edge_20_10", "source": "node_20", "destination": "node_10", "duration": 0.35},
+        {"type": "highlight", "target": "node_30", "duration": 0.7}
+      ]
+    },
+    {
+      "id": "imbalance",
+      "narration": "The left side is two levels taller; 30's balance factor is plus two.",
+      "subtitle": "Node 30 has a balance factor of plus two.",
+      "actions": [
+        {"type": "highlight", "target": "node_30", "duration": 1.0}
+      ]
+    },
+    {
+      "id": "rotation",
+      "narration": "Rotate right: promote 20, move 30 right, and keep 10 left.",
+      "subtitle": "Promote 20; move 30 right and keep 10 left.",
+      "actions": [
+        {"type": "rotate_right", "target": "node_30", "pivot": "node_20", "duration": 1.5}
+      ]
+    },
+    {
+      "id": "balanced",
+      "narration": "Now 20 has children 10 and 30, restoring balance.",
+      "subtitle": "20 is the root, with children 10 and 30.",
+      "actions": [
+        {"type": "highlight", "target": "node_20", "duration": 0.6},
+        {"type": "highlight", "target": "node_10", "duration": 0.45},
+        {"type": "highlight", "target": "node_30", "duration": 0.45}
+      ]
+    }
+  ]
+}

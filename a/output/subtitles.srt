@@ -1,0 +1,27 @@
+1
+00:00:00,000 --> 00:00:03,329
+AVL trees rebalance after updates.
+
+2
+00:00:03,329 --> 00:00:05,168
+30 is the root.
+
+3
+00:00:05,168 --> 00:00:07,607
+Insert 20 to the left.
+
+4
+00:00:07,607 --> 00:00:12,451
+The left-left chain unbalances 30.
+
+5
+00:00:12,451 --> 00:00:17,645
+Node 30 has a balance factor of plus two.
+
+6
+00:00:17,645 --> 00:00:23,369
+Promote 20; move 30 right and keep 10 left.
+
+7
+00:00:23,369 --> 00:00:27,912
+20 is the root, with children 10 and 30.

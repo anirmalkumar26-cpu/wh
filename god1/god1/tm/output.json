@@ -1,0 +1,964 @@
+{
+  "topic": "Operating System Threads and Concurrency",
+  "learning_objective": "Understand the fundamental structural and execution differences between processes and threads, shared versus private thread resources, concurrency versus parallelism, thread states, thread scheduling, synchronization challenges like race conditions and deadlocks, and practical constructs like thread pools.",
+  "audience_level": "Undergraduate Computer Science & Operating Systems Students",
+  "visual_strategy": "Use a clear spatial box model for processes containing shared memory spaces (Code, Data, Heap) and localized execution pipelines for threads (Stack, Registers, PC). Use dynamic color-coded execution arrows, side-by-side split screens for single-core vs. multi-core processing, structured state machine nodes for lifecycle changes, and step-by-step timeline interactions to visually demonstrate race conditions and deadlock cycles.",
+  "key_concepts": [
+    "Process vs. Thread Memory Layout",
+    "Shared Resources vs. Private Thread Context",
+    "Concurrency vs. Parallelism",
+    "Thread Lifecycle & Thread Control Block (TCB)",
+    "Context Switching Overhead",
+    "User-level vs. Kernel-level Threading Models",
+    "Race Conditions & Mutex Synchronization",
+    "Deadlock and Circular Wait",
+    "Thread Pools and Execution Efficiency"
+  ],
+  "scenes": [
+    {
+      "id": "scene_1_process_vs_thread_memory",
+      "title": "Process vs. Thread Anatomy",
+      "purpose": "Demonstrate visually what memory is shared within a process and what is private to each thread.",
+      "narration": "A process defines an isolated execution environment with shared resources. Threads reside inside the process, sharing code, data, and heap memory, but maintaining their own stack, registers, and program counter.",
+      "visual_objects": [
+        {
+          "id": "process_container",
+          "type": "rectangle",
+          "label": "Process Address Space",
+          "color": "white",
+          "position": "center",
+          "size": "large",
+          "purpose": "Represents the boundary of the operating system process."
+        },
+        {
+          "id": "shared_code",
+          "type": "rectangle",
+          "label": "Code Section",
+          "content": "Executable Instructions",
+          "color": "blue",
+          "position": "top left inside process_container",
+          "size": "medium",
+          "purpose": "Shows the memory region shared across all threads containing application code."
+        },
+        {
+          "id": "shared_data",
+          "type": "rectangle",
+          "label": "Data Section",
+          "content": "Global Variables",
+          "color": "blue",
+          "position": "top right inside process_container",
+          "size": "medium",
+          "purpose": "Shows global and static memory shared by all threads."
+        },
+        {
+          "id": "shared_heap",
+          "type": "rectangle",
+          "label": "Heap Space",
+          "content": "Dynamic Allocation",
+          "color": "blue",
+          "position": "center inside process_container",
+          "size": "wide",
+          "purpose": "Shows dynamically allocated memory available to every thread in the process."
+        },
+        {
+          "id": "thread_1_box",
+          "type": "rectangle",
+          "label": "Thread 1",
+          "color": "orange",
+          "position": "bottom left inside process_container",
+          "size": "medium",
+          "purpose": "Encapsulates private storage for the first thread."
+        },
+        {
+          "id": "thread_1_stack",
+          "type": "rectangle",
+          "label": "Stack T1",
+          "content": "Local Vars / Frames",
+          "color": "orange",
+          "position": "inside thread_1_box",
+          "size": "small",
+          "purpose": "Shows thread 1 private stack frame."
+        },
+        {
+          "id": "thread_1_registers",
+          "type": "node",
+          "label": "PC & Registers",
+          "content": "PC: 0x004010",
+          "color": "yellow",
+          "position": "below thread_1_stack inside thread_1_box",
+          "size": "small",
+          "purpose": "Shows thread 1 independent CPU execution pointers."
+        },
+        {
+          "id": "thread_2_box",
+          "type": "rectangle",
+          "label": "Thread 2",
+          "color": "green",
+          "position": "bottom right inside process_container",
+          "size": "medium",
+          "purpose": "Encapsulates private storage for the second thread."
+        },
+        {
+          "id": "thread_2_stack",
+          "type": "rectangle",
+          "label": "Stack T2",
+          "content": "Local Vars / Frames",
+          "color": "green",
+          "position": "inside thread_2_box",
+          "size": "small",
+          "purpose": "Shows thread 2 private stack frame."
+        },
+        {
+          "id": "thread_2_registers",
+          "type": "node",
+          "label": "PC & Registers",
+          "content": "PC: 0x0040A8",
+          "color": "yellow",
+          "position": "below thread_2_stack inside thread_2_box",
+          "size": "small",
+          "purpose": "Shows thread 2 independent execution pointers operating on different instructions."
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel_shared_mem",
+          "source": "shared_code",
+          "target": "shared_heap",
+          "type": "connected_to",
+          "visual_representation": "boundary",
+          "importance": "Indicates shared process address space."
+        },
+        {
+          "id": "rel_t1_reads_shared",
+          "source": "thread_1_box",
+          "target": "shared_heap",
+          "type": "points_to",
+          "visual_representation": "arrow",
+          "importance": "Demonstrates that Thread 1 can access common heap memory."
+        },
+        {
+          "id": "rel_t2_reads_shared",
+          "source": "thread_2_box",
+          "target": "shared_heap",
+          "type": "points_to",
+          "visual_representation": "arrow",
+          "importance": "Demonstrates that Thread 2 accesses the exact same heap memory."
+        }
+      ],
+      "actions": [
+        {
+          "order": 1,
+          "action": "create",
+          "target": "process_container",
+          "description": "Draw the main process bounding box.",
+          "duration": 1.0,
+          "educational_reason": "Establishes the boundary of the operating system process."
+        },
+        {
+          "order": 2,
+          "action": "fade_in",
+          "target": "shared_code",
+          "description": "Fade in shared Code section.",
+          "duration": 0.5,
+          "educational_reason": "Shows the shared code base available to all threads."
+        },
+        {
+          "order": 3,
+          "action": "fade_in",
+          "target": "shared_data",
+          "description": "Fade in shared Data section.",
+          "duration": 0.5,
+          "educational_reason": "Shows shared global state across threads."
+        },
+        {
+          "order": 4,
+          "action": "fade_in",
+          "target": "shared_heap",
+          "description": "Fade in shared Heap section.",
+          "duration": 0.5,
+          "educational_reason": "Shows dynamic memory shared by all threads."
+        },
+        {
+          "order": 5,
+          "action": "grow",
+          "target": "thread_1_box",
+          "description": "Expand Thread 1 private context containing its unique stack and registers.",
+          "duration": 1.0,
+          "educational_reason": "Visually separates shared process memory from private thread state."
+        },
+        {
+          "order": 6,
+          "action": "grow",
+          "target": "thread_2_box",
+          "description": "Expand Thread 2 private context alongside Thread 1.",
+          "duration": 1.0,
+          "educational_reason": "Proves that multiple execution contexts can co-exist within one process."
+        },
+        {
+          "order": 7,
+          "action": "highlight",
+          "target": "thread_1_registers",
+          "description": "Highlight PC values of both threads simultaneously.",
+          "duration": 1.0,
+          "educational_reason": "Emphasizes that each thread executes its own program counter independently."
+        }
+      ],
+      "transition_to_next": "Smoothly transition the execution paths into CPU hardware execution cores."
+    },
+    {
+      "id": "scene_2_concurrency_vs_parallelism",
+      "title": "Concurrency vs. Parallelism",
+      "purpose": "Visually differentiate time-sliced single-core execution (concurrency) from physical simultaneous multicore execution (parallelism).",
+      "narration": "Concurrency means multiple tasks make progress during overlapping time intervals via rapid context switching. Parallelism means tasks execute literally at the exact same time on distinct physical CPU cores.",
+      "visual_objects": [
+        {
+          "id": "single_core_container",
+          "type": "rectangle",
+          "label": "Single-Core CPU",
+          "color": "blue",
+          "position": "left",
+          "size": "medium",
+          "purpose": "Represents a single hardware execution core."
+        },
+        {
+          "id": "single_core_slot",
+          "type": "node",
+          "label": "Active CPU Slot",
+          "content": "Idle",
+          "color": "white",
+          "position": "center inside single_core_container",
+          "size": "small",
+          "purpose": "Shows which thread currently holds the single core."
+        },
+        {
+          "id": "multi_core_container",
+          "type": "rectangle",
+          "label": "Quad-Core CPU",
+          "color": "blue",
+          "position": "right",
+          "size": "medium",
+          "purpose": "Represents multicore processor architecture."
+        },
+        {
+          "id": "core_1_slot",
+          "type": "node",
+          "label": "Core 1",
+          "content": "Thread 1",
+          "color": "orange",
+          "position": "top inside multi_core_container",
+          "size": "small",
+          "purpose": "Executes Thread 1 in parallel."
+        },
+        {
+          "id": "core_2_slot",
+          "type": "node",
+          "label": "Core 2",
+          "content": "Thread 2",
+          "color": "green",
+          "position": "bottom inside multi_core_container",
+          "size": "small",
+          "purpose": "Executes Thread 2 simultaneously."
+        },
+        {
+          "id": "label_concurrency",
+          "type": "text",
+          "content": "Concurrency (Interleaved Time Sharing)",
+          "color": "orange",
+          "position": "above single_core_container",
+          "size": "small",
+          "purpose": "Identifies single core interleaved paradigm."
+        },
+        {
+          "id": "label_parallelism",
+          "type": "text",
+          "content": "Parallelism (Simultaneous Execution)",
+          "color": "green",
+          "position": "above multi_core_container",
+          "size": "small",
+          "purpose": "Identifies multi-core simultaneous paradigm."
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel_concurrent_switch",
+          "source": "label_concurrency",
+          "target": "single_core_container",
+          "type": "depends_on",
+          "visual_representation": "brace",
+          "importance": "Links time slicing concept to single core."
+        },
+        {
+          "id": "rel_parallel_exec",
+          "source": "core_1_slot",
+          "target": "core_2_slot",
+          "type": "compares_with",
+          "visual_representation": "highlight",
+          "importance": "Highlights simultaneous activity on dual cores."
+        }
+      ],
+      "actions": [
+        {
+          "order": 1,
+          "action": "create",
+          "target": "single_core_container",
+          "description": "Display single core processor box on left.",
+          "duration": 0.8,
+          "educational_reason": "Establishes single-core hardware constraint."
+        },
+        {
+          "order": 2,
+          "action": "create",
+          "target": "multi_core_container",
+          "description": "Display quad-core processor box on right.",
+          "duration": 0.8,
+          "educational_reason": "Establishes multicore hardware capability."
+        },
+        {
+          "order": 3,
+          "action": "replace",
+          "target": "single_core_slot",
+          "description": "Rapidly switch single core label back and forth between 'Thread 1 (Orange)' and 'Thread 2 (Green)'.",
+          "duration": 2.5,
+          "educational_reason": "Visually demonstrates concurrency via rapid time-slicing on one processor."
+        },
+        {
+          "order": 4,
+          "action": "indicate",
+          "target": "core_1_slot",
+          "description": "Show Core 1 actively running Thread 1 continuously.",
+          "duration": 1.2,
+          "educational_reason": "Shows persistent active running state on first core."
+        },
+        {
+          "order": 5,
+          "action": "indicate",
+          "target": "core_2_slot",
+          "description": "Show Core 2 actively running Thread 2 at the exact same time instance.",
+          "duration": 1.2,
+          "educational_reason": "Proves true hardware parallelism."
+        }
+      ],
+      "transition_to_next": "Transform single thread activity into a formal OS Lifecycle State Machine."
+    },
+    {
+      "id": "scene_3_lifecycle_and_tcb",
+      "title": "Thread Lifecycle and Context Switching",
+      "purpose": "Show how threads transition between lifecycle states and how the Thread Control Block (TCB) preserves context during switching.",
+      "narration": "The operating system manages threads using Thread Control Blocks. As threads shift between Ready, Running, and Blocked states, context switching saves the old thread execution state and restores the new thread state.",
+      "visual_objects": [
+        {
+          "id": "state_new",
+          "type": "circle",
+          "label": "New",
+          "color": "white",
+          "position": "far left",
+          "size": "small",
+          "purpose": "Initial state upon creation."
+        },
+        {
+          "id": "state_ready",
+          "type": "circle",
+          "label": "Ready",
+          "color": "blue",
+          "position": "left center",
+          "size": "small",
+          "purpose": "Waiting for OS scheduler assignment."
+        },
+        {
+          "id": "state_running",
+          "type": "circle",
+          "label": "Running",
+          "color": "green",
+          "position": "center",
+          "size": "small",
+          "purpose": "Currently executing on CPU."
+        },
+        {
+          "id": "state_blocked",
+          "type": "circle",
+          "label": "Blocked / Waiting",
+          "color": "red",
+          "position": "bottom center",
+          "size": "small",
+          "purpose": "Waiting for I/O or lock release."
+        },
+        {
+          "id": "state_terminated",
+          "type": "circle",
+          "label": "Terminated",
+          "color": "white",
+          "position": "far right",
+          "size": "small",
+          "purpose": "Execution completed."
+        },
+        {
+          "id": "tcb_box",
+          "type": "rectangle",
+          "label": "TCB (Thread Control Block)",
+          "content": "TID: 101 | State: Running | PC: 0x4012 | Registers: Saved",
+          "color": "yellow",
+          "position": "top center",
+          "size": "medium",
+          "purpose": "Data structure maintaining OS context for thread preemption and restoration."
+        },
+        {
+          "id": "active_thread_token",
+          "type": "node",
+          "label": "Thread A",
+          "color": "orange",
+          "position": "state_new",
+          "size": "tiny",
+          "purpose": "Moving token representing the currently tracked thread."
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel_new_to_ready",
+          "source": "state_new",
+          "target": "state_ready",
+          "type": "transforms_into",
+          "visual_representation": "arrow",
+          "importance": "Admit thread to ready queue."
+        },
+        {
+          "id": "rel_ready_to_running",
+          "source": "state_ready",
+          "target": "state_running",
+          "type": "transforms_into",
+          "visual_representation": "arrow",
+          "importance": "CPU dispatching."
+        },
+        {
+          "id": "rel_running_to_blocked",
+          "source": "state_running",
+          "target": "state_blocked",
+          "type": "transforms_into",
+          "visual_representation": "arrow",
+          "importance": "I/O or resource wait."
+        },
+        {
+          "id": "rel_blocked_to_ready",
+          "source": "state_blocked",
+          "target": "state_ready",
+          "type": "transforms_into",
+          "visual_representation": "arrow",
+          "importance": "I/O completion event."
+        }
+      ],
+      "actions": [
+        {
+          "order": 1,
+          "action": "create",
+          "target": "tcb_box",
+          "description": "Display the TCB structure overhead.",
+          "duration": 0.8,
+          "educational_reason": "Introduces the OS data structure responsible for state management."
+        },
+        {
+          "order": 2,
+          "action": "move",
+          "target": "active_thread_token",
+          "description": "Move active thread token from 'New' -> 'Ready' -> 'Running'.",
+          "duration": 1.5,
+          "educational_reason": "Illustrates OS scheduling dispatch."
+        },
+        {
+          "order": 3,
+          "action": "move",
+          "target": "active_thread_token",
+          "description": "Transition active thread token from 'Running' to 'Blocked' while writing register state to TCB box.",
+          "duration": 1.8,
+          "educational_reason": "Visualizes context saving during an I/O wait state."
+        },
+        {
+          "order": 4,
+          "action": "highlight",
+          "target": "tcb_box",
+          "description": "Flash TCB box values updating to reflect saved registers.",
+          "duration": 0.8,
+          "educational_reason": "Emphasizes CPU register state preservation during context switch."
+        },
+        {
+          "order": 5,
+          "action": "move",
+          "target": "active_thread_token",
+          "description": "Move token from 'Blocked' -> 'Ready' -> 'Running' -> 'Terminated'.",
+          "duration": 2.0,
+          "educational_reason": "Completes the lifecycle journey of a thread."
+        }
+      ],
+      "transition_to_next": "Clear lifecycle nodes and set up threading models architecture comparison."
+    },
+    {
+      "id": "scene_4_user_vs_kernel_threads",
+      "title": "Threading Models: User-Level vs. Kernel-Level",
+      "purpose": "Compare how User Threads map to Kernel Threads across Many-to-One, One-to-One, and Many-to-Many models.",
+      "narration": "Operating systems map user-level threads to kernel-level execution contexts using different models. The One-to-One model offers high concurrency and multicore usage but higher overhead, while Many-to-One is light but suffers from blocking issues.",
+      "visual_objects": [
+        {
+          "id": "user_space_boundary",
+          "type": "rectangle",
+          "label": "User Space",
+          "color": "blue",
+          "position": "top half",
+          "size": "wide",
+          "purpose": "Represents application user space."
+        },
+        {
+          "id": "kernel_space_boundary",
+          "type": "rectangle",
+          "label": "Kernel Space",
+          "color": "yellow",
+          "position": "bottom half",
+          "size": "wide",
+          "purpose": "Represents OS kernel execution layer."
+        },
+        {
+          "id": "user_thread_1",
+          "type": "circle",
+          "label": "UT 1",
+          "color": "orange",
+          "position": "left inside user_space_boundary",
+          "size": "small",
+          "purpose": "User level thread 1."
+        },
+        {
+          "id": "user_thread_2",
+          "type": "circle",
+          "label": "UT 2",
+          "color": "orange",
+          "position": "center inside user_space_boundary",
+          "size": "small",
+          "purpose": "User level thread 2."
+        },
+        {
+          "id": "kernel_thread_1",
+          "type": "circle",
+          "label": "KT 1",
+          "color": "green",
+          "position": "left inside kernel_space_boundary",
+          "size": "small",
+          "purpose": "Kernel level thread 1."
+        },
+        {
+          "id": "kernel_thread_2",
+          "type": "circle",
+          "label": "KT 2",
+          "color": "green",
+          "position": "center inside kernel_space_boundary",
+          "size": "small",
+          "purpose": "Kernel level thread 2."
+        },
+        {
+          "id": "model_title",
+          "type": "text",
+          "content": "Model: One-to-One (1:1)",
+          "color": "white",
+          "position": "top",
+          "size": "medium",
+          "purpose": "Title displaying active threading model."
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel_map_ut1_kt1",
+          "source": "user_thread_1",
+          "target": "kernel_thread_1",
+          "type": "connected_to",
+          "visual_representation": "line",
+          "importance": "Direct 1:1 mapping between user thread and kernel thread."
+        },
+        {
+          "id": "rel_map_ut2_kt2",
+          "source": "user_thread_2",
+          "target": "kernel_thread_2",
+          "type": "connected_to",
+          "visual_representation": "line",
+          "importance": "Direct 1:1 mapping between second pair."
+        }
+      ],
+      "actions": [
+        {
+          "order": 1,
+          "action": "create",
+          "target": "user_space_boundary",
+          "description": "Establish User Space vs Kernel Space split screen layout.",
+          "duration": 1.0,
+          "educational_reason": "Delineates privilege boundaries in modern operating systems."
+        },
+        {
+          "order": 2,
+          "action": "connect",
+          "target": "rel_map_ut1_kt1",
+          "description": "Connect UT 1 directly to KT 1, and UT 2 to KT 2.",
+          "duration": 1.2,
+          "educational_reason": "Demonstrates the 1-to-1 threading model used in Linux and Windows."
+        },
+        {
+          "order": 3,
+          "action": "replace",
+          "target": "model_title",
+          "description": "Change title content to 'Model: Many-to-One (M:1)'.",
+          "duration": 0.5,
+          "educational_reason": "Prepares transition to single kernel thread mapping."
+        },
+        {
+          "order": 4,
+          "action": "move",
+          "target": "rel_map_ut2_kt2",
+          "description": "Redirect connection line from UT 2 down to point into KT 1 instead of KT 2, removing KT 2.",
+          "duration": 1.5,
+          "educational_reason": "Visually transforms architecture into Many-to-One mapping, showing kernel unawareness of individual user threads."
+        }
+      ],
+      "transition_to_next": "Transition into shared memory synchronization and race condition demonstrations."
+    },
+    {
+      "id": "scene_5_race_condition_and_mutex",
+      "title": "Race Conditions and Mutex Synchronization",
+      "purpose": "Demonstrate visually how uncoordinated shared memory writes corrupt data (race condition) and how a Mutex resolves it.",
+      "narration": "When threads access shared data concurrently without synchronization, a race condition occurs. Using a Mutex ensures mutual exclusion so only one thread enters the critical section at a time.",
+      "visual_objects": [
+        {
+          "id": "shared_counter_var",
+          "type": "rectangle",
+          "label": "Shared Counter",
+          "content": "Value: 0",
+          "color": "white",
+          "position": "center",
+          "size": "medium",
+          "purpose": "Shared variable accessible by both threads."
+        },
+        {
+          "id": "thread_alpha",
+          "type": "node",
+          "label": "Thread A",
+          "content": "Count++",
+          "color": "orange",
+          "position": "left center",
+          "size": "small",
+          "purpose": "First thread performing write increment."
+        },
+        {
+          "id": "thread_beta",
+          "type": "node",
+          "label": "Thread B",
+          "content": "Count++",
+          "color": "green",
+          "position": "right center",
+          "size": "small",
+          "purpose": "Second thread performing concurrent write increment."
+        },
+        {
+          "id": "mutex_lock_icon",
+          "type": "node",
+          "label": "Mutex Lock",
+          "content": "UNLOCKED",
+          "color": "green",
+          "position": "above shared_counter_var",
+          "size": "small",
+          "purpose": "Synchronization key guarding critical section access."
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel_ta_reads",
+          "source": "thread_alpha",
+          "target": "shared_counter_var",
+          "type": "points_to",
+          "visual_representation": "arrow",
+          "importance": "Read/Write path for Thread A."
+        },
+        {
+          "id": "rel_tb_reads",
+          "source": "thread_beta",
+          "target": "shared_counter_var",
+          "type": "points_to",
+          "visual_representation": "arrow",
+          "importance": "Read/Write path for Thread B."
+        }
+      ],
+      "actions": [
+        {
+          "order": 1,
+          "action": "create",
+          "target": "shared_counter_var",
+          "description": "Show counter initialized to 0.",
+          "duration": 0.5,
+          "educational_reason": "Establishes baseline data value."
+        },
+        {
+          "order": 2,
+          "action": "indicate",
+          "target": "thread_alpha",
+          "description": "Thread A reads 0.",
+          "duration": 0.6,
+          "educational_reason": "Step 1 of un-synchronized write."
+        },
+        {
+          "order": 3,
+          "action": "indicate",
+          "target": "thread_beta",
+          "description": "Thread B reads 0 before Thread A writes back.",
+          "duration": 0.6,
+          "educational_reason": "Highlights timing overlap leading to race condition."
+        },
+        {
+          "order": 4,
+          "action": "replace",
+          "target": "shared_counter_var",
+          "description": "Both threads calculate 0+1=1 and write back 'Value: 1' (Incorrect! Should be 2). Change counter box to RED.",
+          "duration": 1.5,
+          "educational_reason": "Visually proves data corruption caused by race conditions."
+        },
+        {
+          "order": 5,
+          "action": "fade_in",
+          "target": "mutex_lock_icon",
+          "description": "Fade in green Mutex Lock icon above counter and reset counter value to 0.",
+          "duration": 1.0,
+          "educational_reason": "Introduces mutual exclusion solution."
+        },
+        {
+          "order": 6,
+          "action": "change_color",
+          "target": "mutex_lock_icon",
+          "description": "Thread A acquires lock: Mutex turns RED ('LOCKED by Thread A'). Thread B is blocked with yellow waiting aura.",
+          "duration": 1.2,
+          "educational_reason": "Demonstrates exclusive access granted to Thread A while Thread B waits."
+        },
+        {
+          "order": 7,
+          "action": "replace",
+          "target": "shared_counter_var",
+          "description": "Thread A updates counter to 1, releases lock. Lock turns back to GREEN. Thread B acquires lock, updates counter to 2.",
+          "duration": 2.0,
+          "educational_reason": "Proves Mutex ensures correct execution result (Value: 2)."
+        }
+      ],
+      "transition_to_next": "Transition from single lock usage into multiple lock deadlock scenario."
+    },
+    {
+      "id": "scene_6_deadlock_circular_wait",
+      "title": "Deadlock and Circular Wait",
+      "purpose": "Illustrate how improper lock ordering creates an inescapable circular dependency resulting in deadlock.",
+      "narration": "Synchronization mechanisms can cause deadlock if threads hold resources while waiting for resources held by each other. This circular wait prevents all involved threads from making progress.",
+      "visual_objects": [
+        {
+          "id": "deadlock_thread_1",
+          "type": "circle",
+          "label": "Thread 1",
+          "color": "orange",
+          "position": "left center",
+          "size": "medium",
+          "purpose": "First thread involved in deadlock."
+        },
+        {
+          "id": "deadlock_thread_2",
+          "type": "circle",
+          "label": "Thread 2",
+          "color": "green",
+          "position": "right center",
+          "size": "medium",
+          "purpose": "Second thread involved in deadlock."
+        },
+        {
+          "id": "lock_resource_a",
+          "type": "square",
+          "label": "Lock A",
+          "content": "Held by T1",
+          "color": "red",
+          "position": "top center",
+          "size": "small",
+          "purpose": "First lock resource."
+        },
+        {
+          "id": "lock_resource_b",
+          "type": "square",
+          "label": "Lock B",
+          "content": "Held by T2",
+          "color": "red",
+          "position": "bottom center",
+          "size": "small",
+          "purpose": "Second lock resource."
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel_t1_holds_la",
+          "source": "deadlock_thread_1",
+          "target": "lock_resource_a",
+          "type": "connected_to",
+          "visual_representation": "line",
+          "importance": "Thread 1 owns Lock A."
+        },
+        {
+          "id": "rel_t2_holds_lb",
+          "source": "deadlock_thread_2",
+          "target": "lock_resource_b",
+          "type": "connected_to",
+          "visual_representation": "line",
+          "importance": "Thread 2 owns Lock B."
+        },
+        {
+          "id": "rel_t1_waits_lb",
+          "source": "deadlock_thread_1",
+          "target": "lock_resource_b",
+          "type": "moves_toward",
+          "visual_representation": "arrow",
+          "importance": "Thread 1 waiting for Lock B."
+        },
+        {
+          "id": "rel_t2_waits_la",
+          "source": "deadlock_thread_2",
+          "target": "lock_resource_a",
+          "type": "moves_toward",
+          "visual_representation": "arrow",
+          "importance": "Thread 2 waiting for Lock A."
+        }
+      ],
+      "actions": [
+        {
+          "order": 1,
+          "action": "create",
+          "target": "deadlock_thread_1",
+          "description": "Display Thread 1 and Thread 2.",
+          "duration": 0.8,
+          "educational_reason": "Sets up two concurrent active threads."
+        },
+        {
+          "order": 2,
+          "action": "connect",
+          "target": "rel_t1_holds_la",
+          "description": "Show solid line from Thread 1 acquiring Lock A.",
+          "duration": 0.8,
+          "educational_reason": "Establishes first resource ownership."
+        },
+        {
+          "order": 3,
+          "action": "connect",
+          "target": "rel_t2_holds_lb",
+          "description": "Show solid line from Thread 2 acquiring Lock B.",
+          "duration": 0.8,
+          "educational_reason": "Establishes second resource ownership."
+        },
+        {
+          "order": 4,
+          "action": "connect",
+          "target": "rel_t1_waits_lb",
+          "description": "Draw dashed arrow from Thread 1 requesting Lock B.",
+          "duration": 1.0,
+          "educational_reason": "Thread 1 blocks waiting for Lock B."
+        },
+        {
+          "order": 5,
+          "action": "connect",
+          "target": "rel_t2_waits_la",
+          "description": "Draw dashed arrow from Thread 2 requesting Lock A.",
+          "duration": 1.0,
+          "educational_reason": "Thread 2 blocks waiting for Lock A, closing the circular dependency loop."
+        },
+        {
+          "order": 6,
+          "action": "highlight",
+          "target": "lock_resource_a",
+          "description": "Pulse all relationships in bright flashing RED.",
+          "duration": 1.5,
+          "educational_reason": "Emphasizes frozen execution caused by circular wait condition."
+        }
+      ],
+      "transition_to_next": "Transition to practical thread management architecture using Thread Pools."
+    },
+    {
+      "id": "scene_7_thread_pools_and_summary",
+      "title": "Thread Pools & Practical Architecture",
+      "purpose": "Demonstrate how thread pools optimize server applications by recycling worker threads rather than destroying and recreating them.",
+      "narration": "To avoid creation overhead and resource exhaustion, modern software uses Thread Pools. Incoming tasks enter a queue and are picked up by available reusable worker threads.",
+      "visual_objects": [
+        {
+          "id": "task_queue_box",
+          "type": "array",
+          "label": "Incoming Task Queue",
+          "content": "[Task 1, Task 2, Task 3]",
+          "color": "blue",
+          "position": "left",
+          "size": "medium",
+          "purpose": "Holds incoming user requests or jobs."
+        },
+        {
+          "id": "pool_container",
+          "type": "rectangle",
+          "label": "Thread Pool",
+          "color": "green",
+          "position": "right",
+          "size": "large",
+          "purpose": "Container of pre-allocated reusable worker threads."
+        },
+        {
+          "id": "worker_thread_1",
+          "type": "circle",
+          "label": "Worker 1 (Idle)",
+          "color": "white",
+          "position": "top inside pool_container",
+          "size": "small",
+          "purpose": "First pre-spawned worker thread."
+        },
+        {
+          "id": "worker_thread_2",
+          "type": "circle",
+          "label": "Worker 2 (Idle)",
+          "color": "white",
+          "position": "bottom inside pool_container",
+          "size": "small",
+          "purpose": "Second pre-spawned worker thread."
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel_queue_to_worker",
+          "source": "task_queue_box",
+          "target": "worker_thread_1",
+          "type": "moves_toward",
+          "visual_representation": "arrow",
+          "importance": "Dispatches queued tasks directly onto available idle workers."
+        }
+      ],
+      "actions": [
+        {
+          "order": 1,
+          "action": "create",
+          "target": "task_queue_box",
+          "description": "Show task queue filling with tasks.",
+          "duration": 0.8,
+          "educational_reason": "Displays request traffic arriving at a system."
+        },
+        {
+          "order": 2,
+          "action": "create",
+          "target": "pool_container",
+          "description": "Display thread pool containing idle workers.",
+          "duration": 0.8,
+          "educational_reason": "Shows pre-allocated worker threads ready for assignment."
+        },
+        {
+          "order": 3,
+          "action": "move",
+          "target": "task_queue_box",
+          "description": "Pop 'Task 1' from queue and assign to Worker 1. Worker 1 changes color to GREEN ('Busy').",
+          "duration": 1.2,
+          "educational_reason": "Illustrates task assignment without overhead of thread creation."
+        },
+        {
+          "order": 4,
+          "action": "change_color",
+          "target": "worker_thread_1",
+          "description": "Worker 1 completes task and returns to WHITE ('Idle') state ready for next task.",
+          "duration": 1.0,
+          "educational_reason": "Demonstrates thread reusability."
+        }
+      ],
+      "transition_to_next": "Fade all components into the final integrated architectural view."
+    }
+  ],
+  "final_visual_summary": "The final screen displays a unified high-level architecture: A Process container holding shared Memory (Code, Data, Heap), enclosing multiple dynamic Thread paths (with private PC/Registers/Stacks). A small overlay summarizes key dynamics: Concurrency (time slicing) vs Parallelism (multicore), Mutex locks guarding shared state, and Thread Pools managing overall system overhead efficiently."
+}

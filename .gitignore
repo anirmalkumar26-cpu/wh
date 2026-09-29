@@ -1,0 +1,66 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing and linting
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local databases and user data
+*.db
+*.sqlite
+*.sqlite3
+backend/data/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Generated video and audio output
+output/
+outputs/
+renders/
+rendered/
+temp/
+tmp/
+
+# Generated media
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wav
+*.mp3
+
+# Frontend dependencies
+node_modules/
+
+# IDE settings
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

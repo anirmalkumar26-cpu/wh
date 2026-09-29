@@ -1,0 +1,570 @@
+{
+  "title": "Mastering Binary Search Trees",
+  "difficulty": "medium",
+  "target_duration": 480.0,
+  "scenes": [
+    {
+      "narration": "A Binary Search Tree is a fundamental node-based dynamic data structure used to organize, manage, and retrieve data efficiently.",
+      "subtitle": "Introduction to Binary Search Trees",
+      "duration": 8.17,
+      "elements": [
+        {
+          "type": "text",
+          "text": "Binary Search Tree",
+          "position": [
+            0.0,
+            2.0
+          ],
+          "color": "#ffffff",
+          "width": 6.0,
+          "height": 1.0
+        },
+        {
+          "type": "circle",
+          "position": [
+            0.0,
+            0.0
+          ],
+          "color": "#4f46e5",
+          "radius": 0.8
+        },
+        {
+          "type": "text",
+          "text": "Root Node",
+          "position": [
+            0.0,
+            -1.5
+          ],
+          "color": "#9ca3af",
+          "width": 4.0,
+          "height": 0.8
+        }
+      ]
+    },
+    {
+      "narration": "To understand a binary search tree, we look at its structure. Each node contains a value and pointers to a left and right child.",
+      "subtitle": "Tree Structure and Nodes",
+      "duration": 8.76,
+      "elements": [
+        {
+          "type": "circle",
+          "position": [
+            0.0,
+            1.5
+          ],
+          "color": "#4f46e5",
+          "radius": 0.6
+        },
+        {
+          "type": "line",
+          "position": [
+            -0.5,
+            1.0
+          ],
+          "end": [
+            -2.0,
+            -0.5
+          ]
+        },
+        {
+          "type": "circle",
+          "position": [
+            -2.0,
+            -0.5
+          ],
+          "color": "#3b82f6",
+          "radius": 0.5
+        },
+        {
+          "type": "line",
+          "position": [
+            0.5,
+            1.0
+          ],
+          "end": [
+            2.0,
+            -0.5
+          ]
+        },
+        {
+          "type": "circle",
+          "position": [
+            2.0,
+            -0.5
+          ],
+          "color": "#3b82f6",
+          "radius": 0.5
+        },
+        {
+          "type": "text",
+          "text": "Left & Right Children",
+          "position": [
+            0.0,
+            -2.2
+          ],
+          "color": "#ffffff",
+          "width": 5.0,
+          "height": 0.8
+        }
+      ]
+    },
+    {
+      "narration": "The core rule is the BST invariant: all keys in the left subtree are strictly less, and all keys in the right subtree are strictly greater.",
+      "subtitle": "The BST Invariant",
+      "duration": 9.22,
+      "elements": [
+        {
+          "type": "circle",
+          "position": [
+            0.0,
+            1.5
+          ],
+          "color": "#10b981",
+          "radius": 0.6
+        },
+        {
+          "type": "text",
+          "text": "Left < Node < Right",
+          "position": [
+            0.0,
+            0.0
+          ],
+          "color": "#facc15",
+          "width": 5.0,
+          "height": 0.8
+        },
+        {
+          "type": "rectangle",
+          "position": [
+            -2.5,
+            -1.5
+          ],
+          "color": "#1f2937",
+          "width": 2.5,
+          "height": 1.2
+        },
+        {
+          "type": "text",
+          "text": "Smaller Keys",
+          "position": [
+            -2.5,
+            -1.5
+          ],
+          "color": "#9ca3af",
+          "width": 2.0,
+          "height": 0.6
+        },
+        {
+          "type": "rectangle",
+          "position": [
+            2.5,
+            -1.5
+          ],
+          "color": "#1f2937",
+          "width": 2.5,
+          "height": 1.2
+        },
+        {
+          "type": "text",
+          "text": "Larger Keys",
+          "position": [
+            2.5,
+            -1.5
+          ],
+          "color": "#9ca3af",
+          "width": 2.0,
+          "height": 0.6
+        }
+      ]
+    },
+    {
+      "narration": "Individual nodes typically contain four fields: the key, a left pointer, a right pointer, and an optional parent pointer.",
+      "subtitle": "Anatomy of a Node",
+      "duration": 8.78,
+      "elements": [
+        {
+          "type": "rectangle",
+          "position": [
+            0.0,
+            0.5
+          ],
+          "color": "#374151",
+          "width": 5.0,
+          "height": 2.0
+        },
+        {
+          "type": "text",
+          "text": "Key | Left Pointer | Right Pointer | Parent",
+          "position": [
+            0.0,
+            0.5
+          ],
+          "color": "#ffffff",
+          "width": 4.5,
+          "height": 1.0
+        }
+      ]
+    },
+    {
+      "narration": "Searching starts at the root. If the target is smaller we move left, if larger we move right, halving the search space each time.",
+      "subtitle": "Searching in a BST",
+      "duration": 9.19,
+      "elements": [
+        {
+          "type": "circle",
+          "position": [
+            0.0,
+            1.5
+          ],
+          "color": "#4f46e5",
+          "radius": 0.5
+        },
+        {
+          "type": "line",
+          "position": [
+            -0.4,
+            1.1
+          ],
+          "end": [
+            -1.5,
+            0.2
+          ]
+        },
+        {
+          "type": "circle",
+          "position": [
+            -1.5,
+            0.2
+          ],
+          "color": "#ef4444",
+          "radius": 0.5
+        },
+        {
+          "type": "text",
+          "text": "Target < Current -> Go Left",
+          "position": [
+            0.0,
+            -1.8
+          ],
+          "color": "#ffffff",
+          "width": 6.0,
+          "height": 0.8
+        }
+      ]
+    },
+    {
+      "narration": "Insertion follows a similar path. The algorithm searches for the key, and upon reaching a null pointer, attaches the new node as a leaf.",
+      "subtitle": "Inserting New Values",
+      "duration": 9.78,
+      "elements": [
+        {
+          "type": "circle",
+          "position": [
+            0.0,
+            1.5
+          ],
+          "color": "#4f46e5",
+          "radius": 0.5
+        },
+        {
+          "type": "line",
+          "position": [
+            0.4,
+            1.1
+          ],
+          "end": [
+            1.5,
+            0.2
+          ]
+        },
+        {
+          "type": "circle",
+          "position": [
+            1.5,
+            0.2
+          ],
+          "color": "#10b981",
+          "radius": 0.5
+        },
+        {
+          "type": "text",
+          "text": "Attach at Null Pointer",
+          "position": [
+            0.0,
+            -1.8
+          ],
+          "color": "#ffffff",
+          "width": 5.0,
+          "height": 0.8
+        }
+      ]
+    },
+    {
+      "narration": "Deletion is the most complex operation. It has three cases: no children, one child, or two children requiring in-order successors.",
+      "subtitle": "Deleting a Node",
+      "duration": 10.15,
+      "elements": [
+        {
+          "type": "text",
+          "text": "Deletion Cases",
+          "position": [
+            0.0,
+            2.0
+          ],
+          "color": "#ffffff",
+          "width": 4.0,
+          "height": 0.8
+        },
+        {
+          "type": "text",
+          "text": "1. Zero Children (Simple Remove)\n2. One Child (Direct Link)\n3. Two Children (Use Successor)",
+          "position": [
+            0.0,
+            -0.2
+          ],
+          "color": "#9ca3af",
+          "width": 6.0,
+          "height": 2.5
+        }
+      ]
+    },
+    {
+      "narration": "Traversals visit every node systematically. In-order traversal yields a sorted sequence, while pre-order and post-order serve other structural needs.",
+      "subtitle": "Tree Traversals",
+      "duration": 10.35,
+      "elements": [
+        {
+          "type": "text",
+          "text": "In-Order: Left -> Root -> Right",
+          "position": [
+            0.0,
+            1.0
+          ],
+          "color": "#60a5fa",
+          "width": 6.0,
+          "height": 0.8
+        },
+        {
+          "type": "text",
+          "text": "Pre-Order: Root -> Subtrees",
+          "position": [
+            0.0,
+            0.0
+          ],
+          "color": "#34d399",
+          "width": 6.0,
+          "height": 0.8
+        },
+        {
+          "type": "text",
+          "text": "Post-Order: Subtrees -> Root",
+          "position": [
+            0.0,
+            -1.0
+          ],
+          "color": "#f472b6",
+          "width": 6.0,
+          "height": 0.8
+        }
+      ]
+    },
+    {
+      "narration": "Under ideal conditions, tree height is logarithmic. However, inserting sorted elements can create a skewed linear structure resembling a linked list.",
+      "subtitle": "Performance and Degeneracy",
+      "duration": 10.6,
+      "elements": [
+        {
+          "type": "circle",
+          "position": [
+            -2.0,
+            1.5
+          ],
+          "color": "#10b981",
+          "radius": 0.4
+        },
+        {
+          "type": "text",
+          "text": "Balanced: O(log n)",
+          "position": [
+            -2.0,
+            0.5
+          ],
+          "color": "#10b981",
+          "width": 3.0,
+          "height": 0.8
+        },
+        {
+          "type": "circle",
+          "position": [
+            2.0,
+            1.5
+          ],
+          "color": "#ef4444",
+          "radius": 0.4
+        },
+        {
+          "type": "line",
+          "position": [
+            2.0,
+            1.1
+          ],
+          "end": [
+            2.0,
+            0.5
+          ]
+        },
+        {
+          "type": "circle",
+          "position": [
+            2.0,
+            0.1
+          ],
+          "color": "#ef4444",
+          "radius": 0.4
+        },
+        {
+          "type": "text",
+          "text": "Degenerate: O(n)",
+          "position": [
+            2.0,
+            -1.0
+          ],
+          "color": "#ef4444",
+          "width": 3.0,
+          "height": 0.8
+        }
+      ]
+    },
+    {
+      "narration": "To solve degeneracy, self-balancing trees like AVL and Red-Black trees perform automated rotations to keep the height logarithmically bounded.",
+      "subtitle": "Self-Balancing Trees",
+      "duration": 9.15,
+      "elements": [
+        {
+          "type": "rectangle",
+          "position": [
+            -2.0,
+            0.0
+          ],
+          "color": "#1f2937",
+          "width": 3.0,
+          "height": 2.0
+        },
+        {
+          "type": "text",
+          "text": "AVL Trees\nStrict Balance",
+          "position": [
+            -2.0,
+            0.0
+          ],
+          "color": "#ffffff",
+          "width": 2.5,
+          "height": 1.2
+        },
+        {
+          "type": "rectangle",
+          "position": [
+            2.0,
+            0.0
+          ],
+          "color": "#1f2937",
+          "width": 3.0,
+          "height": 2.0
+        },
+        {
+          "type": "text",
+          "text": "Red-Black Trees\nRelaxed Balance",
+          "position": [
+            2.0,
+            0.0
+          ],
+          "color": "#ffffff",
+          "width": 2.5,
+          "height": 1.2
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "index": 0,
+      "narration": "A Binary Search Tree is a fundamental node-based dynamic data structure used to organize, manage, and retrieve data efficiently.",
+      "subtitle": "Introduction to Binary Search Trees",
+      "duration": 8.17,
+      "start": 0.0,
+      "end": 8.17
+    },
+    {
+      "index": 1,
+      "narration": "To understand a binary search tree, we look at its structure. Each node contains a value and pointers to a left and right child.",
+      "subtitle": "Tree Structure and Nodes",
+      "duration": 8.76,
+      "start": 8.17,
+      "end": 16.93
+    },
+    {
+      "index": 2,
+      "narration": "The core rule is the BST invariant: all keys in the left subtree are strictly less, and all keys in the right subtree are strictly greater.",
+      "subtitle": "The BST Invariant",
+      "duration": 9.22,
+      "start": 16.93,
+      "end": 26.15
+    },
+    {
+      "index": 3,
+      "narration": "Individual nodes typically contain four fields: the key, a left pointer, a right pointer, and an optional parent pointer.",
+      "subtitle": "Anatomy of a Node",
+      "duration": 8.78,
+      "start": 26.15,
+      "end": 34.93
+    },
+    {
+      "index": 4,
+      "narration": "Searching starts at the root. If the target is smaller we move left, if larger we move right, halving the search space each time.",
+      "subtitle": "Searching in a BST",
+      "duration": 9.19,
+      "start": 34.93,
+      "end": 44.12
+    },
+    {
+      "index": 5,
+      "narration": "Insertion follows a similar path. The algorithm searches for the key, and upon reaching a null pointer, attaches the new node as a leaf.",
+      "subtitle": "Inserting New Values",
+      "duration": 9.78,
+      "start": 44.12,
+      "end": 53.9
+    },
+    {
+      "index": 6,
+      "narration": "Deletion is the most complex operation. It has three cases: no children, one child, or two children requiring in-order successors.",
+      "subtitle": "Deleting a Node",
+      "duration": 10.15,
+      "start": 53.9,
+      "end": 64.05
+    },
+    {
+      "index": 7,
+      "narration": "Traversals visit every node systematically. In-order traversal yields a sorted sequence, while pre-order and post-order serve other structural needs.",
+      "subtitle": "Tree Traversals",
+      "duration": 10.35,
+      "start": 64.05,
+      "end": 74.4
+    },
+    {
+      "index": 8,
+      "narration": "Under ideal conditions, tree height is logarithmic. However, inserting sorted elements can create a skewed linear structure resembling a linked list.",
+      "subtitle": "Performance and Degeneracy",
+      "duration": 10.6,
+      "start": 74.4,
+      "end": 85.0
+    },
+    {
+      "index": 9,
+      "narration": "To solve degeneracy, self-balancing trees like AVL and Red-Black trees perform automated rotations to keep the height logarithmically bounded.",
+      "subtitle": "Self-Balancing Trees",
+      "duration": 9.15,
+      "start": 85.0,
+      "end": 94.15
+    }
+  ]
+}

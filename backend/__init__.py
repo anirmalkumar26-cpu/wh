@@ -1,0 +1,1 @@
+"""WH educational backend package."""

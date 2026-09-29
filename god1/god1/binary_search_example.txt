@@ -1,0 +1,6 @@
+﻿Binary Search is an efficient searching technique based on the divide and conquer principle. It works only on sorted data structures and repeatedly halves the search space until the target element is found or the search space is exhausted.
+
+The algorithm compares the middle element of the current search range with the target:
+- If equal, the search ends successfully.
+- If the target is smaller, search continues in the left half.
+- If the target is larger, search continues in the right half.

@@ -1,0 +1,21 @@
+{
+  "stage": "full",
+  "started_at": "2026-09-28T06:20:30.586876+00:00",
+  "status": "success",
+  "scene_plan": "C:\\Users\\SONU\\Downloads\\god\\a\\data\\scene_plan.json",
+  "master_timeline": "C:\\Users\\SONU\\Downloads\\god\\a\\data\\master_timeline.json",
+  "subtitles": "C:\\Users\\SONU\\Downloads\\god\\a\\output\\subtitles.srt",
+  "narration": "C:\\Users\\SONU\\Downloads\\god\\a\\output\\narration.wav",
+  "duration": 27.912335600907028,
+  "segments": 7,
+  "video": "C:\\Users\\SONU\\Downloads\\god\\a\\output\\final.mp4",
+  "video_validation": {
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "video_duration": 27.8,
+    "audio_duration": 27.84,
+    "has_decodable_video": true,
+    "has_decodable_audio": true
+  },
+  "finished_at": "2026-09-28T06:20:37.623932+00:00"
+}
